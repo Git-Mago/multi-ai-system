@@ -97,7 +97,7 @@ if domanda.strip():
             )
         st.markdown("### ✅ Risposta")
         st.markdown(risposta)
-        st.caption("💰 Costo: $0.00 | Modello: Llama 3.3 70B")
+        st.caption("Modello: Llama 3.3 70B")
     
     # STANDARD
     elif standard:
@@ -105,8 +105,8 @@ if domanda.strip():
         
         agents = [
             ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata"),
-            ("gemma2-9b-it", "Esperto Pratico", "Esempi concreti"),
-            ("llama-3.1-8b-instant", "Pensatore Critico", "Analisi critica")
+            ("openai/gpt-oss-20b", "Esperto Pratico", "Esempi concreti e soluzioni pratiche"),
+            ("qwen/qwen3-32b", "Pensatore Critico", "Analisi critica e prospettive alternative")
         ]
         
         responses = []
@@ -137,18 +137,18 @@ if domanda.strip():
                 st.markdown(f"**{role}**")
                 st.info(resp)
         
-        st.caption("💰 Costo: $0.00 | 3 modelli consultati")
+        st.caption("3 modelli consultati")
     
     # DEEP
     elif deep:
         st.warning("🟠 Modalità DEEP: 5 modelli")
         
         agents = [
-            ("llama-3.1-8b-instant", "Analista Tecnico"),
-            ("llama-3.3-70b-versatile", "Stratega"),  # ✅ AGGIORNATO
-            ("gemma2-9b-it", "Esperto Pratico"),
-            ("llama-3.1-8b-instant", "Pensatore Critico"),
-            ("llama-3.2-90b-text-preview", "Prospettiva Globale")  # ✅ CAMBIATO (qwen non sempre disponibile)
+            ("llama-3.1-8b-instant", "Analista Veloce"),
+            ("llama-3.3-70b-versatile", "Stratega"),
+            ("openai/gpt-oss-20b", "Esperto Pratico"),
+            ("qwen/qwen3-32b", "Pensatore Alternativo"),
+            ("meta-llama/llama-4-scout-17b-16e-instruct", "Verificatore Moderno")
         ]
         
         responses = []
@@ -181,7 +181,7 @@ if domanda.strip():
                 st.markdown(f"**{role}**")
                 st.info(resp)
         
-        st.caption("💰 Costo: $0.00 | 5 modelli consultati")
+        st.caption("5 modelli consultati")
     
     # EXPERT
     elif expert:
@@ -189,11 +189,11 @@ if domanda.strip():
         
         agents = [
             ("llama-3.1-8b-instant", "Analista Veloce"),
-            ("llama-3.3-70b-versatile", "Stratega Master"),  # ✅ AGGIORNATO
-            ("deepseek-r1-distill-llama-70b", "Pensatore Profondo"),  # ✅ AGGIORNATO
-            ("gemma2-9b-it", "Esperto Pratico"),
-            ("llama-3.1-8b-instant", "Critico Costruttivo"),
-            ("llama-3.2-90b-text-preview", "Verificatore Globale")
+            ("llama-3.3-70b-versatile", "Stratega Master"),
+            ("openai/gpt-oss-120b", "Pensatore Profondo"),
+            ("openai/gpt-oss-20b", "Esperto Pratico"),
+            ("qwen/qwen3-32b", "Critico Costruttivo"),
+            ("meta-llama/llama-guard-4-12b", "Verificatore Globale")
         ]
         
         responses = []
@@ -226,7 +226,7 @@ if domanda.strip():
                 st.markdown(f"**{role}**")
                 st.info(resp)
         
-        st.caption("💰 Costo: $0.00 | 6 modelli premium consultati")
+        st.caption("6 modelli premium consultati")
 
 st.markdown("---")
-st.markdown("**Multi-AI System** | Powered by Groq API | Modelli: Llama 3.3, Mixtral, Gemma")
+st.markdown("**Multi-AI System** | Powered by Groq API | Modelli: Llama 3.3, OpenAI GPT-OSS, Qwen 3, Llama Guard 4")
