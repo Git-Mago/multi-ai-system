@@ -106,7 +106,7 @@ if domanda.strip():
         agents = [
             ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata"),
             ("mixtral-8x7b-32768", "Esperto Pratico", "Esempi concreti"),
-            ("gemma-7b-it", "Pensatore Critico", "Analisi critica")
+            ("gemma-7b", "Pensatore Critico", "Analisi critica")
         ]
         
         responses = []
