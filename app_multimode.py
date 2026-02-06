@@ -105,8 +105,8 @@ if domanda.strip():
         
         agents = [
             ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata"),
-            ("llama-3.2-3b-preview", "Esperto Pratico", "Esempi concreti"),
-            ("gemma-7b", "Pensatore Critico", "Analisi critica")
+            ("qwen-2.5-32b", "Esperto Pratico", "Esempi concreti"),
+            ("llama-4-scout-17b-16e-instruct", "Pensatore Critico", "Analisi critica")
         ]
         
         responses = []
@@ -146,9 +146,9 @@ if domanda.strip():
         agents = [
             ("llama-3.1-8b-instant", "Analista Tecnico"),
             ("llama-3.3-70b-versatile", "Stratega"),  # ✅ AGGIORNATO
-            ("mixtral-8x7b-32768", "Esperto Pratico"),
-            ("gemma-7b-it", "Pensatore Critico"),
-            ("gemma2-9b-it", "Prospettiva Globale")  # ✅ CAMBIATO (qwen non sempre disponibile)
+            ("qwen-2.5-32b", "Esperto Pratico"),
+            ("llama-4-scout-17b-16e-instruct", "Pensatore Critico"),
+            ("qwen-2.5-coder-32bt", "Prospettiva Globale")  # ✅ CAMBIATO (qwen non sempre disponibile)
         ]
         
         responses = []
@@ -190,10 +190,10 @@ if domanda.strip():
         agents = [
             ("llama-3.1-8b-instant", "Analista Veloce"),
             ("llama-3.3-70b-versatile", "Stratega Master"),  # ✅ AGGIORNATO
-            ("llama3-70b-8192", "Pensatore Profondo"),  # ✅ AGGIORNATO
-            ("mixtral-8x7b-32768", "Esperto Pratico"),
-            ("gemma-7b-it", "Critico Costruttivo"),
-            ("gemma2-9b-it", "Verificatore Globale")
+            ("deepseek-r1-distill-llama-70b", "Pensatore Profondo"),  # ✅ AGGIORNATO
+            ("qwen-2.5-32b", "Esperto Pratico"),
+            ("llama-4-scout-17b-16e-instruct", "Critico Costruttivo"),
+            ("qwen-2.5-coder-32b", "Verificatore Globale")
         ]
         
         responses = []
