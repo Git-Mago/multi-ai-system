@@ -1,6 +1,6 @@
 import streamlit as st
-from groq import Groq
-import os
+import requests
+import json
 
 st.set_page_config(page_title="Multi-AI Agent", page_icon="🤖", layout="wide")
 
@@ -42,7 +42,31 @@ if not groq_api_key:
     st.warning("👈 Inserisci Groq API key")
     st.stop()
 
-client = Groq(api_key=groq_api_key)
+def query_groq(model, system_msg, user_msg, api_key):
+    """Query Groq API directly via HTTP"""
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_msg}
+        ],
+        "temperature": 0.7,
+        "max_tokens": 1024
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+    except Exception as e:
+        return f"Errore: {str(e)}"
 
 st.markdown("### 💭 Fai la tua domanda")
 domanda = st.text_area("", height=120, placeholder="Esempio: Dovrei cambiare lavoro?")
@@ -61,146 +85,148 @@ if domanda.strip():
     with col4:
         expert = st.button("🔴 EXPERT", use_container_width=True)
     
-    def query_model(model_name, role, goal, question):
-        """Query a single model"""
-        try:
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[
-                    {"role": "system", "content": f"Sei un {role}. {goal}"},
-                    {"role": "user", "content": question}
-                ],
-                temperature=0.7,
-                max_tokens=1024
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Errore: {str(e)}"
-    
-    def synthesize(responses, question):
-        """Synthesize responses"""
-        synthesis_prompt = f"Sintetizza queste {len(responses)} analisi su '{question}':\n\n"
-        for i, r in enumerate(responses):
-            synthesis_prompt += f"Analisi {i+1}: {r}\n\n"
-        
-        response = client.chat.completions.create(
-            model="llama-3.1-70b-versatile",
-            messages=[
-                {"role": "system", "content": "Sintetizza le analisi in una risposta coerente."},
-                {"role": "user", "content": synthesis_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=2048
-        )
-        return response.choices[0].message.content
-    
     # QUICK
     if quick:
         st.success("🟢 Modalità QUICK")
         with st.spinner("⏳ Elaborazione..."):
-            risposta = query_model(
-                "llama-3.1-70b-versatile",
-                "Esperto Generalista",
-                "Fornisci risposta completa.",
-                domanda
+            risposta = query_groq(
+                "llama-3.3-70b-versatile",  # ✅ AGGIORNATO
+                "Sei un esperto generalista. Fornisci risposta completa.",
+                domanda,
+                groq_api_key
             )
         st.markdown("### ✅ Risposta")
         st.markdown(risposta)
+        st.caption("💰 Costo: $0.00 | Modello: Llama 3.3 70B")
     
     # STANDARD
     elif standard:
-        st.success("🟡 Modalità STANDARD")
+        st.success("🟡 Modalità STANDARD: 3 modelli")
         
         agents = [
-            ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata."),
-            ("mixtral-8x7b-32768", "Esperto Pratico", "Esempi concreti."),
-            ("gemma-7b-it", "Pensatore Critico", "Analisi critica.")
+            ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata"),
+            ("mixtral-8x7b-32768", "Esperto Pratico", "Esempi concreti"),
+            ("gemma-7b-it", "Pensatore Critico", "Analisi critica")
         ]
         
         responses = []
+        
         with st.spinner("⏳ 3 agenti..."):
             for model, role, goal in agents:
-                r = query_model(model, role, goal, domanda)
-                responses.append(r)
+                r = query_groq(model, f"Sei un {role}. {goal}.", domanda, groq_api_key)
+                responses.append((role, r))
         
+        # Synthesis
         with st.spinner("🎯 Sintesi..."):
-            finale = synthesize(responses, domanda)
+            synthesis_prompt = f"Sintetizza queste 3 analisi:\n\n"
+            for role, resp in responses:
+                synthesis_prompt += f"{role}: {resp}\n\n"
+            
+            finale = query_groq(
+                "llama-3.3-70b-versatile",  # ✅ AGGIORNATO
+                "Sintetizza le analisi in una risposta coerente.",
+                synthesis_prompt,
+                groq_api_key
+            )
         
         st.markdown("### ✅ Risposta Finale")
         st.markdown(finale)
         
         with st.expander("📖 Risposte individuali"):
-            for i, (agent, resp) in enumerate(zip(agents, responses)):
-                st.markdown(f"**{agent[1]}**")
+            for role, resp in responses:
+                st.markdown(f"**{role}**")
                 st.info(resp)
+        
+        st.caption("💰 Costo: $0.00 | 3 modelli consultati")
     
     # DEEP
     elif deep:
-        st.warning("🟠 Modalità DEEP")
+        st.warning("🟠 Modalità DEEP: 5 modelli")
         
         agents = [
-            ("llama-3.1-8b-instant", "Analista", "Dettagli tecnici."),
-            ("llama-3.1-70b-versatile", "Stratega", "Visione strategica."),
-            ("mixtral-8x7b-32768", "Pratico", "Applicazioni."),
-            ("gemma-7b-it", "Critico", "Analisi critica."),
-            ("qwen2-72b-instruct", "Globale", "Contesto globale.")
+            ("llama-3.1-8b-instant", "Analista Tecnico"),
+            ("llama-3.3-70b-versatile", "Stratega"),  # ✅ AGGIORNATO
+            ("mixtral-8x7b-32768", "Esperto Pratico"),
+            ("gemma-7b-it", "Pensatore Critico"),
+            ("gemma2-9b-it", "Prospettiva Globale")  # ✅ CAMBIATO (qwen non sempre disponibile)
         ]
         
         responses = []
         progress = st.progress(0)
         
-        for i, (model, role, goal) in enumerate(agents):
+        for i, (model, role) in enumerate(agents):
             st.text(f"⏳ {i+1}/5: {role}...")
-            r = query_model(model, role, goal, domanda)
-            responses.append(r)
+            r = query_groq(model, f"Sei un {role}.", domanda, groq_api_key)
+            responses.append((role, r))
             progress.progress((i+1)/6)
         
         st.text("🎯 Sintesi...")
-        finale = synthesize(responses, domanda)
+        synthesis_prompt = "Sintetizza:\n\n"
+        for role, resp in responses:
+            synthesis_prompt += f"{role}: {resp}\n\n"
+        
+        finale = query_groq(
+            "llama-3.3-70b-versatile",  # ✅ AGGIORNATO
+            "Crea sintesi definitiva.",
+            synthesis_prompt,
+            groq_api_key
+        )
         progress.progress(1.0)
         
         st.markdown("### ✅ Risposta DEEP")
         st.markdown(finale)
         
         with st.expander("📊 5 Prospettive"):
-            for i, (agent, resp) in enumerate(zip(agents, responses)):
-                st.markdown(f"**{agent[1]}**")
+            for role, resp in responses:
+                st.markdown(f"**{role}**")
                 st.info(resp)
+        
+        st.caption("💰 Costo: $0.00 | 5 modelli consultati")
     
     # EXPERT
     elif expert:
-        st.error("🔴 Modalità EXPERT")
+        st.error("🔴 Modalità EXPERT: 6 modelli")
         
         agents = [
-            ("llama-3.1-8b-instant", "Analista", "Tecnico."),
-            ("llama-3.1-70b-versatile", "Stratega", "Strategico."),
-            ("llama-3.3-70b-versatile", "Innovatore", "Creativo."),
-            ("mixtral-8x7b-32768", "Pratico", "Operativo."),
-            ("gemma-7b-it", "Critico", "Rischi."),
-            ("gemma2-9b-it", "Verificatore", "Facts."),
-            ("qwen2-72b-instruct", "Globale", "Internazionale.")
+            ("llama-3.1-8b-instant", "Analista Veloce"),
+            ("llama-3.3-70b-versatile", "Stratega Master"),  # ✅ AGGIORNATO
+            ("llama3-70b-8192", "Pensatore Profondo"),  # ✅ AGGIORNATO
+            ("mixtral-8x7b-32768", "Esperto Pratico"),
+            ("gemma-7b-it", "Critico Costruttivo"),
+            ("gemma2-9b-it", "Verificatore Globale")
         ]
         
         responses = []
         progress = st.progress(0)
         
-        for i, (model, role, goal) in enumerate(agents):
-            st.text(f"⏳ {i+1}/7: {role}...")
-            r = query_model(model, role, goal, domanda)
-            responses.append(r)
-            progress.progress((i+1)/8)
+        for i, (model, role) in enumerate(agents):
+            st.text(f"⏳ {i+1}/6: {role}...")
+            r = query_groq(model, f"Sei un {role}.", domanda, groq_api_key)
+            responses.append((role, r))
+            progress.progress((i+1)/7)
         
         st.text("🎯 Super-sintesi...")
-        finale = synthesize(responses, domanda)
+        synthesis_prompt = "Sintesi da 6 AI:\n\n"
+        for role, resp in responses:
+            synthesis_prompt += f"{role}: {resp}\n\n"
+        
+        finale = query_groq(
+            "llama-3.3-70b-versatile",  # ✅ AGGIORNATO
+            "Sintesi definitiva master.",
+            synthesis_prompt,
+            groq_api_key
+        )
         progress.progress(1.0)
         
         st.markdown("### 🏆 Risposta EXPERT")
         st.markdown(finale)
         
-        with st.expander("📊 7 Prospettive"):
-            for i, (agent, resp) in enumerate(zip(agents, responses)):
-                st.markdown(f"**{agent[1]}**")
+        with st.expander("📊 6 Prospettive"):
+            for role, resp in responses:
+                st.markdown(f"**{role}**")
                 st.info(resp)
+        
+        st.caption("💰 Costo: $0.00 | 6 modelli premium consultati")
 
 st.markdown("---")
-st.markdown("**Multi-AI System** | Powered by Groq")
+st.markdown("**Multi-AI System** | Powered by Groq API | Modelli: Llama 3.3, Mixtral, Gemma")
