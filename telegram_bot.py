@@ -110,7 +110,7 @@ async def quick_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         domanda
     )
     
-    await update.message.reply_text(f"✅ *Risposta:*\n\n{risposta}\n\n💰 Costo: $0.00", parse_mode='Markdown')
+    await update.message.reply_text(f"✅ *Risposta:*\n\n{risposta}", parse_mode='Markdown')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle text messages (STANDARD mode)"""
@@ -124,9 +124,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         # Query 3 models
         agents = [
-            ("llama-3.1-8b-instant", "Analista Tecnico"),
-            ("mixtral-8x7b-32768", "Esperto Pratico"),
-            ("gemma-7b-it", "Pensatore Critico")
+            ("llama-3.1-8b-instant", "Analista Tecnico", "Analisi dettagliata"),
+            ("openai/gpt-oss-20b", "Esperto Pratico", "Esempi concreti e soluzioni pratiche"),
+            ("qwen/qwen3-32b", "Pensatore Critico", "Analisi critica e prospettive alternative")
         ]
         
         responses = []
@@ -146,7 +146,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await thinking_msg.delete()
         
         # Send final response
-        response_text = f"✅ *Risposta Sintetizzata:*\n\n{finale}\n\n📊 3 modelli consultati\n💰 Costo: $0.00"
+        response_text = f"✅ *Risposta Sintetizzata:*\n\n{finale}\n\n📊 3 modelli consultati"
         
         # Telegram max 4096 chars
         if len(response_text) > 4000:
