@@ -414,7 +414,7 @@ if domanda.strip():
             ("openai/gpt-oss-120b", "Profondo"),
             ("openai/gpt-oss-20b", "Pratico"),
             ("qwen/qwen3-32b", "Critico"),
-            ("meta-llama/llama-guard-4-12b", "Verificatore")
+            ("meta-llama/llama-4-scout-17b-16e-instruct", "Verificatore")
         ]
         
         responses = []
